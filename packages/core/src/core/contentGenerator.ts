@@ -46,7 +46,6 @@ export interface ContentGenerator {
 }
 
 export enum AuthType {
-  USE_OLLAMA = 'ollama',
   LOGIN_WITH_GOOGLE = 'oauth-personal',
   USE_GEMINI = 'gemini-api-key',
   USE_VERTEX_AI = 'vertex-ai',
@@ -113,12 +112,6 @@ export async function createContentGeneratorConfig(
     contentGeneratorConfig.apiKey = googleApiKey;
     contentGeneratorConfig.vertexai = true;
 
-    return contentGeneratorConfig;
-  }
-
-  if (authType === AuthType.USE_OLLAMA) {
-    // Ollama doesn't require API key validation here
-    // The base URL can be configured via environment variable
     return contentGeneratorConfig;
   }
 
@@ -206,14 +199,6 @@ export async function createContentGenerator(
         httpOptions,
       });
       return new LoggingContentGenerator(googleGenAI.models, gcConfig);
-    }
-
-    if (config.authType === AuthType.USE_OLLAMA) {
-      // TODO: Implement OllamaContentGenerator
-      // For now, throw a helpful error message
-      throw new Error(
-        'Ollama support is not yet fully implemented. Please use one of the other authentication methods.',
-      );
     }
 
     throw new Error(
