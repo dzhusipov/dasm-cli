@@ -303,19 +303,27 @@ export class OllamaContentGenerator implements ContentGenerator {
    * Convert Ollama finish_reason to Gemini format
    */
   private convertFinishReason(reason: string | null): FinishReason {
+    // Debug logging
+    console.error(`[DEBUG] convertFinishReason called with: ${JSON.stringify(reason)}`);
+
     // null means streaming in progress - treat as STOP (no special reason yet)
     if (reason === null) {
+      console.error('[DEBUG] Converted null -> FinishReason.STOP');
       return FinishReason.STOP;
     }
 
     switch (reason) {
       case 'stop':
+        console.error('[DEBUG] Converted "stop" -> FinishReason.STOP');
         return FinishReason.STOP;
       case 'length':
+        console.error('[DEBUG] Converted "length" -> FinishReason.MAX_TOKENS');
         return FinishReason.MAX_TOKENS;
       case 'tool_calls':
+        console.error('[DEBUG] Converted "tool_calls" -> FinishReason.STOP');
         return FinishReason.STOP;
       default:
+        console.error(`[DEBUG] Converted "${reason}" -> FinishReason.OTHER`);
         return FinishReason.OTHER;
     }
   }
