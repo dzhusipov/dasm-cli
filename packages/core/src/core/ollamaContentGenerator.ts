@@ -122,12 +122,13 @@ export class OllamaContentGenerator implements ContentGenerator {
    */
   private normalizeContents(contents: ContentListUnion): Content[] {
     if (Array.isArray(contents)) {
-      return contents.filter((c): c is Content => (
+      return contents.filter(
+        (c): c is Content =>
           typeof c === 'object' &&
           c !== null &&
           'parts' in c &&
-          c.parts !== undefined
-        ));
+          c.parts !== undefined,
+      );
     }
     if (
       typeof contents === 'object' &&
@@ -337,8 +338,9 @@ export class OllamaContentGenerator implements ContentGenerator {
       });
     }
 
+    // Always use Ollama model, ignore request.model (which is for Gemini)
     const ollamaRequest: OllamaRequest = {
-      model: request.model || this.defaultModel,
+      model: this.defaultModel,
       messages,
       stream: false,
       temperature: request.config?.temperature,
@@ -387,8 +389,9 @@ export class OllamaContentGenerator implements ContentGenerator {
       });
     }
 
+    // Always use Ollama model, ignore request.model (which is for Gemini)
     const ollamaRequest: OllamaRequest = {
-      model: request.model || this.defaultModel,
+      model: this.defaultModel,
       messages,
       stream: true,
       temperature: request.config?.temperature,
