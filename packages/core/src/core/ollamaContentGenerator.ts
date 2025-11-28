@@ -303,6 +303,11 @@ export class OllamaContentGenerator implements ContentGenerator {
    * Convert Ollama finish_reason to Gemini format
    */
   private convertFinishReason(reason: string | null): FinishReason {
+    // null means streaming in progress - treat as STOP (no special reason yet)
+    if (reason === null) {
+      return FinishReason.STOP;
+    }
+
     switch (reason) {
       case 'stop':
         return FinishReason.STOP;
