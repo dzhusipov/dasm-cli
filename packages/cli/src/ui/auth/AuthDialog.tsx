@@ -74,6 +74,11 @@ export function AuthDialog({
       value: AuthType.USE_VERTEX_AI,
       key: AuthType.USE_VERTEX_AI,
     },
+    {
+      label: 'Ollama',
+      value: AuthType.USE_OLLAMA,
+      key: AuthType.USE_OLLAMA,
+    },
   ];
 
   if (settings.merged.security?.auth?.enforcedType) {

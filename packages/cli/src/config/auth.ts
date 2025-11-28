@@ -42,5 +42,11 @@ export function validateAuthMethod(authMethod: string): string | null {
     return null;
   }
 
+  if (authMethod === AuthType.USE_OLLAMA) {
+    // Ollama doesn't require environment variables for basic setup
+    // The base URL defaults to http://localhost:11434
+    return null;
+  }
+
   return 'Invalid auth method selected.';
 }
