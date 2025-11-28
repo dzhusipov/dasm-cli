@@ -43,6 +43,11 @@ export function AuthDialog({
   const [exiting, setExiting] = useState(false);
   let items = [
     {
+      label: 'Use Ollama (Local Models)',
+      value: AuthType.USE_OLLAMA,
+      key: AuthType.USE_OLLAMA,
+    },
+    {
       label: 'Login with Google',
       value: AuthType.LOGIN_WITH_GOOGLE,
       key: AuthType.LOGIN_WITH_GOOGLE,
@@ -104,7 +109,8 @@ export function AuthDialog({
       return item.value === AuthType.USE_GEMINI;
     }
 
-    return item.value === AuthType.LOGIN_WITH_GOOGLE;
+    // Default to Ollama for local models
+    return item.value === AuthType.USE_OLLAMA;
   });
   if (settings.merged.security?.auth?.enforcedType) {
     initialAuthIndex = 0;
@@ -142,6 +148,12 @@ export function AuthDialog({
             setAuthState(AuthState.AwaitingApiKeyInput);
             return;
           }
+        }
+
+        if (authType === AuthType.USE_OLLAMA) {
+          // Ollama doesn't need any credentials, just proceed
+          setAuthState(AuthState.Unauthenticated);
+          return;
         }
       }
       setAuthState(AuthState.Unauthenticated);
