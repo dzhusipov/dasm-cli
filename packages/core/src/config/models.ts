@@ -4,6 +4,11 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+// Ollama local models
+export const DEFAULT_DEVSTRAL_MODEL = 'devstral:24b';
+export const DEVSTRAL_MODEL_ALIAS = 'devstral';
+
+// Legacy Gemini models (deprecated for local-only fork)
 export const PREVIEW_GEMINI_MODEL = 'gemini-3-pro-preview';
 export const DEFAULT_GEMINI_MODEL = 'gemini-2.5-pro';
 export const DEFAULT_GEMINI_FLASH_MODEL = 'gemini-2.5-flash';
@@ -22,7 +27,7 @@ export const DEFAULT_GEMINI_EMBEDDING_MODEL = 'gemini-embedding-001';
 export const DEFAULT_THINKING_MODE = 8192;
 
 /**
- * Resolves the requested model alias (e.g., 'auto', 'pro', 'flash', 'flash-lite')
+ * Resolves the requested model alias (e.g., 'auto', 'devstral', 'pro', 'flash', 'flash-lite')
  * to a concrete model name, considering preview features.
  *
  * @param requestedModel The model alias or concrete model name requested by the user.
@@ -34,7 +39,13 @@ export function resolveModel(
   previewFeaturesEnabled: boolean | undefined,
 ): string {
   switch (requestedModel) {
-    case DEFAULT_GEMINI_MODEL_AUTO:
+    case DEFAULT_GEMINI_MODEL_AUTO: {
+      // Default to devstral for local models
+      return DEFAULT_DEVSTRAL_MODEL;
+    }
+    case DEVSTRAL_MODEL_ALIAS: {
+      return DEFAULT_DEVSTRAL_MODEL;
+    }
     case GEMINI_MODEL_ALIAS_PRO: {
       return previewFeaturesEnabled
         ? PREVIEW_GEMINI_MODEL
@@ -84,8 +95,8 @@ export function getEffectiveModel(
     return resolvedModel;
   }
 
-  // Default fallback for Gemini CLI.
-  return DEFAULT_GEMINI_FLASH_MODEL;
+  // Default fallback for local models.
+  return DEFAULT_DEVSTRAL_MODEL;
 }
 
 /**

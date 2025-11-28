@@ -34,6 +34,18 @@ export const DEFAULT_MODEL_CONFIGS: ModelConfigServiceConfig = {
         },
       },
     },
+    // Ollama local model base configuration
+    'ollama-base': {
+      extends: 'base',
+      modelConfig: {
+        generateContentConfig: {
+          temperature: 0.7,
+          topP: 0.9,
+          // devstral supports up to 8K output tokens
+          maxOutputTokens: 8192,
+        },
+      },
+    },
     'chat-base-2.5': {
       extends: 'chat-base',
       modelConfig: {
@@ -81,6 +93,13 @@ export const DEFAULT_MODEL_CONFIGS: ModelConfigServiceConfig = {
       extends: 'chat-base-2.5',
       modelConfig: {
         model: 'gemini-2.5-flash-lite',
+      },
+    },
+    // Ollama local models
+    'devstral:24b': {
+      extends: 'ollama-base',
+      modelConfig: {
+        model: 'devstral:24b',
       },
     },
     // Bases for the internal model configs.
