@@ -13,15 +13,15 @@ import type {
   MCPServerConfig,
   BugCommandSettings,
   TelemetrySettings,
-  AuthType,
   HookDefinition,
   HookEventName,
-} from '@google/gemini-cli-core';
+
+  AuthType} from '@google/gemini-cli-core';
 import {
   DEFAULT_TRUNCATE_TOOL_OUTPUT_LINES,
   DEFAULT_TRUNCATE_TOOL_OUTPUT_THRESHOLD,
   DEFAULT_GEMINI_MODEL,
-  DEFAULT_MODEL_CONFIGS,
+  DEFAULT_MODEL_CONFIGS
 } from '@google/gemini-cli-core';
 import type { CustomTheme } from '../ui/themes/theme.js';
 import type { SessionRetentionSettings } from './settings.js';
@@ -1195,7 +1195,8 @@ const SETTINGS_SCHEMA = {
             category: 'Security',
             requiresRestart: true,
             default: undefined as AuthType | undefined,
-            description: 'The currently selected authentication type.',
+            description:
+              'The currently selected authentication type. Defaults to USE_OLLAMA (local model) if not set.',
             showInDialog: false,
           },
           enforcedType: {

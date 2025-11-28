@@ -18,6 +18,11 @@ import { handleError } from './utils/errors.js';
 import { runExitCleanup } from './utils/cleanup.js';
 
 function getAuthTypeFromEnv(): AuthType | undefined {
+  // Check for Ollama (local model) - default option
+  if (process.env['OLLAMA_BASE_URL'] || process.env['OLLAMA_MODEL']) {
+    return AuthType.USE_OLLAMA;
+  }
+  // Legacy Google auth options
   if (process.env['GOOGLE_GENAI_USE_GCA'] === 'true') {
     return AuthType.LOGIN_WITH_GOOGLE;
   }
@@ -27,7 +32,8 @@ function getAuthTypeFromEnv(): AuthType | undefined {
   if (process.env['GEMINI_API_KEY']) {
     return AuthType.USE_GEMINI;
   }
-  return undefined;
+  // Default to Ollama if no environment variables are set
+  return AuthType.USE_OLLAMA;
 }
 
 export async function validateNonInteractiveAuth(
@@ -48,7 +54,7 @@ export async function validateNonInteractiveAuth(
     }
 
     if (!effectiveAuthType) {
-      const message = `Please set an Auth method in your ${USER_SETTINGS_PATH} or specify one of the following environment variables before running: GEMINI_API_KEY, GOOGLE_GENAI_USE_VERTEXAI, GOOGLE_GENAI_USE_GCA`;
+      const message = `Please set an Auth method in your ${USER_SETTINGS_PATH} or specify one of the following environment variables before running: OLLAMA_BASE_URL, OLLAMA_MODEL (for local models) or GEMINI_API_KEY, GOOGLE_GENAI_USE_VERTEXAI, GOOGLE_GENAI_USE_GCA (for Google models)`;
       throw new Error(message);
     }
 
