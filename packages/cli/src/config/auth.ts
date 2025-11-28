@@ -9,6 +9,12 @@ import { loadEnvironment, loadSettings } from './settings.js';
 
 export function validateAuthMethod(authMethod: string): string | null {
   loadEnvironment(loadSettings().merged);
+
+  // Ollama doesn't need any environment variables - it uses localhost by default
+  if (authMethod === AuthType.USE_OLLAMA) {
+    return null;
+  }
+
   if (
     authMethod === AuthType.LOGIN_WITH_GOOGLE ||
     authMethod === AuthType.COMPUTE_ADC
