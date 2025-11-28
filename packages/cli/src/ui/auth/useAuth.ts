@@ -78,32 +78,18 @@ export const useAuthCommand = (settings: LoadedSettings, config: Config) => {
         return;
       }
 
-      const authType =
-        settings.merged.security?.auth?.selectedType || AuthType.USE_OLLAMA;
+      const authType = settings.merged.security?.auth?.selectedType;
       if (!authType) {
         if (process.env['GEMINI_API_KEY']) {
           onAuthError(
             'Existing API key detected (GEMINI_API_KEY). Select "Gemini API Key" option to use it.',
           );
-        } else if (
-          process.env['OLLAMA_BASE_URL'] ||
-          process.env['OLLAMA_MODEL']
-        ) {
-          // Ollama detected, use it
-          setAuthState(AuthState.Authenticated);
           return;
         } else {
-          onAuthError(
-            'No authentication method selected. Defaulting to Ollama (local model).',
-          );
+          // No auth type selected, show dialog
+          setAuthState(AuthState.Updating);
+          return;
         }
-        return;
-      }
-
-      // Ollama doesn't need API key
-      if (authType === AuthType.USE_OLLAMA) {
-        setAuthState(AuthState.Authenticated);
-        return;
       }
 
       if (authType === AuthType.USE_GEMINI) {
