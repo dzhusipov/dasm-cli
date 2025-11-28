@@ -16,7 +16,7 @@ import {
   type FunctionCall,
   type FunctionResponse,
   type ContentListUnion,
-  type FunctionDeclaration,
+  type ToolListUnion,
   FinishReason,
 } from '@google/genai';
 import type { ContentGenerator } from './contentGenerator.js';
@@ -122,11 +122,19 @@ export class OllamaContentGenerator implements ContentGenerator {
    */
   private normalizeContents(contents: ContentListUnion): Content[] {
     if (Array.isArray(contents)) {
-      return contents.filter(
-        (c): c is Content => c && typeof c === 'object' && 'parts' in c,
-      );
+      return contents.filter((c): c is Content => (
+          typeof c === 'object' &&
+          c !== null &&
+          'parts' in c &&
+          c.parts !== undefined
+        ));
     }
-    if (contents && typeof contents === 'object' && 'parts' in contents) {
+    if (
+      typeof contents === 'object' &&
+      contents !== null &&
+      'parts' in contents &&
+      contents.parts !== undefined
+    ) {
       return [contents as Content];
     }
     return [];
@@ -202,20 +210,36 @@ export class OllamaContentGenerator implements ContentGenerator {
    * Convert Gemini tools to Ollama tools
    */
   private convertTools(
-    declarations: FunctionDeclaration[] | undefined,
+    tools: ToolListUnion | undefined,
   ): OllamaTool[] | undefined {
-    if (!declarations || declarations.length === 0) {
+    if (!tools || tools.length === 0) {
       return undefined;
     }
 
-    return declarations.map((decl) => ({
-      type: 'function',
-      function: {
-        name: decl.name,
-        description: decl.description,
-        parameters: decl.parameters,
-      },
-    }));
+    const ollamaTools: OllamaTool[] = [];
+
+    for (const tool of tools) {
+      // Extract function declarations from Tool
+      const declarations =
+        'functionDeclarations' in tool ? tool.functionDeclarations : undefined;
+
+      if (declarations) {
+        for (const decl of declarations) {
+          if (decl.name) {
+            ollamaTools.push({
+              type: 'function',
+              function: {
+                name: decl.name,
+                description: decl.description,
+                parameters: decl.parameters,
+              },
+            });
+          }
+        }
+      }
+    }
+
+    return ollamaTools.length > 0 ? ollamaTools : undefined;
   }
 
   /**

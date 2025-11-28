@@ -46,6 +46,7 @@ export interface ContentGenerator {
 }
 
 export enum AuthType {
+  USE_OLLAMA = 'ollama',
   LOGIN_WITH_GOOGLE = 'oauth-personal',
   USE_GEMINI = 'gemini-api-key',
   USE_VERTEX_AI = 'vertex-ai',
@@ -58,6 +59,8 @@ export type ContentGeneratorConfig = {
   vertexai?: boolean;
   authType?: AuthType;
   proxy?: string;
+  ollamaBaseUrl?: string;
+  ollamaModel?: string;
 };
 
 export async function createContentGeneratorConfig(
@@ -72,11 +75,20 @@ export async function createContentGeneratorConfig(
     process.env['GOOGLE_CLOUD_PROJECT_ID'] ||
     undefined;
   const googleCloudLocation = process.env['GOOGLE_CLOUD_LOCATION'] || undefined;
+  const ollamaBaseUrl = process.env['OLLAMA_BASE_URL'] || undefined;
+  const ollamaModel = process.env['OLLAMA_MODEL'] || undefined;
 
   const contentGeneratorConfig: ContentGeneratorConfig = {
     authType,
     proxy: config?.getProxy(),
   };
+
+  // If we are using Ollama (local model), no API key needed
+  if (authType === AuthType.USE_OLLAMA) {
+    contentGeneratorConfig.ollamaBaseUrl = ollamaBaseUrl;
+    contentGeneratorConfig.ollamaModel = ollamaModel;
+    return contentGeneratorConfig;
+  }
 
   // If we are using Google auth or we are in Cloud Shell, there is nothing else to validate for now
   if (
@@ -127,6 +139,20 @@ export async function createContentGenerator(
       ...customHeadersMap,
       'User-Agent': userAgent,
     };
+
+    // Handle Ollama local models
+    if (config.authType === AuthType.USE_OLLAMA) {
+      const { OllamaContentGenerator } = await import(
+        './ollamaContentGenerator.js'
+      );
+      return new LoggingContentGenerator(
+        new OllamaContentGenerator({
+          baseUrl: config.ollamaBaseUrl,
+          model: config.ollamaModel,
+        }),
+        gcConfig,
+      );
+    }
 
     if (
       apiKeyAuthMechanism === 'bearer' &&
